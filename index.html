@@ -1,3 +1,4 @@
+<!-- index.html -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -5,6 +6,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Quick Follow-Up Scheduler</title>
   <link rel="stylesheet" href="styles.css" />
+  <!-- NeetoCal embed loader (once) -->
   <script>
     window.neetoCal = window.neetoCal || {
       embed: function() {
@@ -15,15 +17,22 @@
   <script async src="https://cdn.neetocal.com/javascript/embed.js"></script>
 </head>
 <body>
+  <!-- Full-screen loader -->
   <div id="loader">
     <div class="spinner"></div>
   </div>
 
+  <!-- Main UI -->
   <div class="container">
     <h1>Find Your Name</h1>
     <div class="input-group">
       <label for="name-input">Your Name</label>
-      <input type="text" id="name-input" placeholder="Start typing..." list="names" autocomplete="off" />
+      <input
+        type="text"
+        id="name-input"
+        placeholder="Start typing..."
+        autocomplete="off"
+      />
       <datalist id="names"></datalist>
     </div>
     <button id="open-popup-button" disabled>
@@ -31,6 +40,7 @@
     </button>
   </div>
 
+  <!-- Our custom logic -->
   <script src="script.js"></script>
 </body>
 </html>
