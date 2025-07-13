@@ -1,46 +1,195 @@
-<!-- index.html -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Quick Follow-Up Scheduler</title>
-  <link rel="stylesheet" href="styles.css" />
-  <!-- NeetoCal embed loader (once) -->
-  <script>
-    window.neetoCal = window.neetoCal || {
-      embed: function() {
-        (neetoCal.q = neetoCal.q || []).push(arguments);
-      }
-    };
-  </script>
-  <script async src="https://cdn.neetocal.com/javascript/embed.js"></script>
+  <!-- PapaParse for CSV parsing -->
+  <script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 1rem;
+      background: #ffffff;
+      color: #333;
+    }
+    .search-container {
+      position: relative;
+      max-width: 400px;
+      margin: 2rem auto;
+    }
+    #search-input {
+      width: 100%;
+      padding: 0.75rem;
+      font-size: 1rem;
+      border: 2px solid #ccc;
+      border-radius: 0.5rem;
+      box-sizing: border-box;
+    }
+    #search-input.error {
+      border-color: #ff6b6b;
+    }
+    #suggestions {
+      position: absolute;
+      top: calc(100% + 0.25rem);
+      left: 0;
+      right: 0;
+      background: #fff;
+      border: 1px solid #ddd;
+      border-radius: 0.5rem;
+      max-height: 200px;
+      overflow-y: auto;
+      z-index: 10;
+    }
+    #suggestions li {
+      list-style: none;
+      padding: 0.5rem;
+      cursor: pointer;
+    }
+    #suggestions li:hover {
+      background: #dcedc1; /* light green on hover */
+    }
+    .highlight {
+      background-color: #a8e6cf; /* green highlight */
+    }
+    #spinner {
+      display: block;
+      margin: 2rem auto;
+      border: 4px solid #f3f3f3;
+      border-top: 4px solid #4caf50;
+      border-radius: 50%;
+      width: 40px;
+      height: 40px;
+      animation: spin 1s linear infinite;
+    }
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+    #open-popup-button {
+      display: none;
+      margin: 2rem auto;
+      padding: 0.75rem 1.25rem;
+      font-size: 1rem;
+      border: none;
+      border-radius: 0.5rem;
+      background: #4caf50;
+      color: #fff;
+      cursor: pointer;
+      display: block;
+    }
+  </style>
 </head>
 <body>
-  <!-- Full-screen loader -->
-  <div id="loader">
-    <div class="spinner"></div>
+  <div class="search-container">
+    <input type="text" id="search-input" placeholder="Search your name…" autocomplete="off" />
+    <ul id="suggestions"></ul>
   </div>
 
-  <!-- Main UI -->
-  <div class="container">
-    <h1>Find Your Name</h1>
-    <div class="input-group">
-      <label for="name-input">Your Name</label>
-      <input
-        type="text"
-        id="name-input"
-        placeholder="Start typing..."
-        autocomplete="off"
-      />
-      <datalist id="names"></datalist>
-    </div>
-    <button id="open-popup-button" disabled>
-      Open Scheduling Calendar
-    </button>
-  </div>
+  <div id="spinner"></div>
+  <button id="open-popup-button">Schedule Follow-Up</button>
 
-  <!-- Our custom logic -->
-  <script src="script.js"></script>
+  <!-- NeetoCal embed loader -->
+  <script>window.neetoCal = window.neetoCal || { embed: function(){(neetoCal.q=neetoCal.q||[]).push(arguments)} };</script>
+  <script async src="https://cdn.neetocal.com/javascript/embed.js"></script>
+
+  <script>
+    const CSV_URL = 'YOUR_CSV_ENDPOINT_URL'; // replace with your published CSV URL
+    const ORG_SLUG = 'cherry-hill-1st-elders-quorum';
+
+    let records = [];
+    const input = document.getElementById('search-input');
+    const suggestionsEl = document.getElementById('suggestions');
+    const spinner = document.getElementById('spinner');
+    const openBtn = document.getElementById('open-popup-button');
+
+    // Fetch and parse the CSV
+    fetch(CSV_URL)
+      .then(res => res.text())
+      .then(csvText => {
+        Papa.parse(csvText, {
+          header: true,
+          skipEmptyLines: true,
+          complete: (res) => {
+            records = res.data;
+            spinner.style.display = 'none';
+          }
+        });
+      })
+      .catch(err => console.error('Error loading CSV', err));
+
+    // Highlight matched text
+    function highlightMatch(text, query) {
+      const regex = new RegExp(`(${query.replace(/[-/\\^$*+?.()|[\]{}]/g, '\\$&')})`, 'gi');
+      return text.replace(regex, '<span class="highlight">$1</span>');
+    }
+
+    function clearSuggestions() {
+      suggestionsEl.innerHTML = '';
+    }
+
+    function showError(msg) {
+      input.classList.add('error');
+      input.value = '';
+      input.placeholder = msg;
+      clearSuggestions();
+    }
+
+    function loadCalendar(calendarId) {
+      openBtn.style.display = 'block';
+      window.neetoCal.embed({
+        type: 'elementClick',
+        id: calendarId,
+        organization: ORG_SLUG,
+        elementSelector: '#open-popup-button'
+      });
+    }
+
+    input.addEventListener('input', () => {
+      input.classList.remove('error');
+      input.placeholder = 'Search your name…';
+      const query = input.value.trim().toLowerCase();
+      clearSuggestions();
+      openBtn.style.display = 'none';
+
+      if (!query || !records.length) return;
+      const matches = records.filter(r => 
+        (r['Companion 1'] && r['Companion 1'].toLowerCase().includes(query)) ||
+        (r['Companion 2'] && r['Companion 2'].toLowerCase().includes(query))
+      );
+      if (!matches.length) return;
+
+      matches.slice(0, 5).forEach(r => {
+        const name1 = r['Companion 1'] || '';
+        const name2 = r['Companion 2'] || '';
+        const displayName = name1.toLowerCase().includes(query) ? name1 : name2;
+        const li = document.createElement('li');
+        li.innerHTML = highlightMatch(displayName, query);
+        li.addEventListener('click', () => {
+          input.value = displayName;
+          clearSuggestions();
+          loadCalendar(r['Calendar ID']);
+        });
+        suggestionsEl.appendChild(li);
+      });
+    });
+
+    input.addEventListener('keydown', e => {
+      if (e.key === 'Enter') {
+        e.preventDefault();
+        const val = input.value.trim().toLowerCase();
+        const exact = records.find(r => 
+          (r['Companion 1'] && r['Companion 1'].toLowerCase() === val) ||
+          (r['Companion 2'] && r['Companion 2'].toLowerCase() === val)
+        );
+        if (!exact) {
+          showError('Check spelling and try again');
+        } else {
+          loadCalendar(exact['Calendar ID']);
+        }
+      }
+    });
+  </script>
 </body>
 </html>
