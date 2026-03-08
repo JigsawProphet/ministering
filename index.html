@@ -377,9 +377,19 @@
       color: var(--color-success);
     }
 
-    .spots-badge.low {
-      background: rgba(243, 156, 18, 0.1);
+    .service-card.urgent {
+      border-color: var(--color-warning);
+      border-width: 2px;
+    }
+
+    .help-needed-banner {
+      display: flex;
+      align-items: center;
+      gap: 0.375rem;
+      font-size: 0.8125rem;
+      font-weight: 700;
       color: var(--color-warning);
+      margin-bottom: 0.5rem;
     }
 
     .signup-link {
@@ -786,6 +796,17 @@
       return parseInt(row['# Signed Up'], 10) || 0;
     }
 
+    function isWithinTwoWeeks(dateStr) {
+      if (!dateStr) return false;
+      const parsed = new Date(dateStr);
+      if (isNaN(parsed)) return false;
+      const now = new Date();
+      now.setHours(0, 0, 0, 0);
+      parsed.setHours(0, 0, 0, 0);
+      const diffMs = parsed - now;
+      return diffMs >= 0 && diffMs <= 14 * 24 * 60 * 60 * 1000;
+    }
+
     function renderServiceList() {
       serviceList.innerHTML = '';
 
@@ -810,9 +831,10 @@
         const signedUp = getSignedUp(r);
         const spotsLeft = Math.max(needed - signedUp, 0);
         const isFilled = spotsLeft <= 0;
+        const isUrgent = !isFilled && isWithinTwoWeeks(r['Date']);
 
         const card = document.createElement('div');
-        card.className = 'service-card';
+        card.className = 'service-card' + (isUrgent ? ' urgent' : '');
         if (isFilled) card.style.opacity = '0.55';
 
         const signupUrl = (r['Sign up'] || '').trim();
@@ -822,9 +844,12 @@
             ? '<span class="spots-badge" style="background:rgba(108,117,125,0.1);color:#6b7c8d;">Filled</span>'
             : '';
 
-        const spotsClass = spotsLeft <= 2 && spotsLeft > 0 ? 'low' : 'available';
+        const urgentBanner = isUrgent
+          ? `<div class="help-needed-banner"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg> Help Needed</div>`
+          : '';
 
         card.innerHTML = `
+          ${urgentBanner}
           <div class="service-card-header">${r['Assignment'] || 'Service Opportunity'}</div>
           <div class="service-card-details">
             <div class="service-detail">
@@ -841,7 +866,7 @@
             </div>
           </div>
           <div class="service-card-footer">
-            ${!isFilled ? `<span class="spots-badge ${spotsClass}">${spotsLeft} spot${spotsLeft !== 1 ? 's' : ''} left</span>` : ''}
+            ${!isFilled ? `<span class="spots-badge available">${spotsLeft} spot${spotsLeft !== 1 ? 's' : ''} left</span>` : ''}
             ${signupBtn}
           </div>
         `;
