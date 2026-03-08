@@ -6,7 +6,7 @@
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="mobile-web-app-capable" content="yes">
   <meta name="theme-color" content="#146789">
-  <title>Ministering Interviews</title>
+  <title>Cherry Hill 1st Ward</title>
   <script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
   <style>
     *, *::before, *::after {
@@ -26,6 +26,8 @@
       --color-accent-light: #dcedc1;
       --color-error: #e74c3c;
       --color-border: #e0ddd5;
+      --color-success: #27ae60;
+      --color-warning: #f39c12;
       --radius-sm: 0.5rem;
       --radius-md: 0.75rem;
       --radius-lg: 1rem;
@@ -99,6 +101,55 @@
       font-weight: 600;
       color: var(--color-text);
       font-size: 0.8125rem;
+    }
+
+    /* Tabs */
+    .tab-bar {
+      width: 100%;
+      display: flex;
+      background: var(--color-surface);
+      border-radius: var(--radius-lg);
+      padding: 0.25rem;
+      box-shadow: var(--shadow-sm);
+      border: 1px solid var(--color-border);
+    }
+
+    .tab-btn {
+      flex: 1;
+      padding: 0.75rem 0.5rem;
+      font-size: 0.875rem;
+      font-weight: 600;
+      font-family: var(--font-sans);
+      border: none;
+      border-radius: var(--radius-md);
+      background: transparent;
+      color: var(--color-text-light);
+      cursor: pointer;
+      transition: background 0.2s, color 0.2s;
+      -webkit-tap-highlight-color: transparent;
+      touch-action: manipulation;
+    }
+
+    .tab-btn.active {
+      background: var(--color-primary);
+      color: #fff;
+    }
+
+    .tab-btn:not(.active):hover {
+      background: rgba(20, 103, 137, 0.08);
+      color: var(--color-text);
+    }
+
+    .tab-panel {
+      display: none;
+      width: 100%;
+    }
+
+    .tab-panel.active {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 1.25rem;
     }
 
     /* Search */
@@ -241,7 +292,7 @@
       to { transform: rotate(360deg); }
     }
 
-    /* Error toast */
+    /* Error message */
     .error-msg {
       font-size: 0.8125rem;
       color: var(--color-error);
@@ -252,6 +303,150 @@
 
     .error-msg.visible {
       display: block;
+    }
+
+    /* Service Opportunities */
+    .service-list {
+      width: 100%;
+      display: flex;
+      flex-direction: column;
+      gap: 0.75rem;
+    }
+
+    .service-card {
+      background: var(--color-surface);
+      border: 1px solid var(--color-border);
+      border-radius: var(--radius-lg);
+      padding: 1rem;
+      box-shadow: var(--shadow-sm);
+      transition: box-shadow 0.2s;
+    }
+
+    .service-card:hover {
+      box-shadow: var(--shadow-md);
+    }
+
+    .service-card-header {
+      font-size: 1rem;
+      font-weight: 700;
+      color: var(--color-text);
+      margin-bottom: 0.5rem;
+    }
+
+    .service-card-details {
+      display: flex;
+      flex-direction: column;
+      gap: 0.375rem;
+      margin-bottom: 0.75rem;
+    }
+
+    .service-detail {
+      display: flex;
+      align-items: flex-start;
+      gap: 0.5rem;
+      font-size: 0.875rem;
+      color: var(--color-text-light);
+      line-height: 1.4;
+    }
+
+    .service-detail-icon {
+      width: 1rem;
+      height: 1rem;
+      flex-shrink: 0;
+      margin-top: 1px;
+      color: var(--color-text-light);
+    }
+
+    .service-card-footer {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 0.75rem;
+    }
+
+    .spots-badge {
+      font-size: 0.8125rem;
+      font-weight: 600;
+      padding: 0.25rem 0.625rem;
+      border-radius: var(--radius-sm);
+      white-space: nowrap;
+    }
+
+    .spots-badge.available {
+      background: rgba(39, 174, 96, 0.1);
+      color: var(--color-success);
+    }
+
+    .spots-badge.low {
+      background: rgba(243, 156, 18, 0.1);
+      color: var(--color-warning);
+    }
+
+    .signup-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.375rem;
+      padding: 0.5rem 1rem;
+      font-size: 0.875rem;
+      font-weight: 600;
+      font-family: var(--font-sans);
+      border: none;
+      border-radius: var(--radius-md);
+      background: var(--color-primary);
+      color: #fff;
+      text-decoration: none;
+      cursor: pointer;
+      transition: background 0.2s, transform 0.1s;
+      -webkit-tap-highlight-color: transparent;
+      touch-action: manipulation;
+    }
+
+    .signup-link:hover {
+      background: var(--color-primary-hover);
+    }
+
+    .signup-link:active {
+      transform: scale(0.97);
+    }
+
+    .service-empty {
+      text-align: center;
+      padding: 2rem 1rem;
+      color: var(--color-text-light);
+      font-size: 0.9375rem;
+    }
+
+    .service-filter {
+      width: 100%;
+      display: flex;
+      gap: 0.5rem;
+    }
+
+    .filter-btn {
+      flex: 1;
+      padding: 0.5rem;
+      font-size: 0.8125rem;
+      font-weight: 600;
+      font-family: var(--font-sans);
+      border: 2px solid var(--color-border);
+      border-radius: var(--radius-md);
+      background: var(--color-surface);
+      color: var(--color-text-light);
+      cursor: pointer;
+      transition: all 0.2s;
+      -webkit-tap-highlight-color: transparent;
+      touch-action: manipulation;
+    }
+
+    .filter-btn.active {
+      border-color: var(--color-primary);
+      background: rgba(20, 103, 137, 0.06);
+      color: var(--color-primary);
+    }
+
+    .filter-btn:not(.active):hover {
+      border-color: var(--color-text-light);
+      color: var(--color-text);
     }
 
     /* Responsive breakpoints */
@@ -270,6 +465,10 @@
       }
 
       .scripture {
+        font-size: 0.9375rem;
+      }
+
+      .tab-btn {
         font-size: 0.9375rem;
       }
     }
@@ -296,6 +495,14 @@
         font-size: 1.0625rem;
         padding: 1rem 1.125rem 1rem 3rem;
       }
+
+      .service-card {
+        padding: 1.25rem;
+      }
+
+      .service-card-footer {
+        gap: 1rem;
+      }
     }
 
     @media (min-width: 1024px) {
@@ -314,36 +521,55 @@
     />
 
     <div class="header">
-      <h1>Ministering Interviews</h1>
+      <h1>Cherry Hill 1st Elders Quorum</h1>
       <p class="scripture">
         "Therefore they did watch over their people, and did nourish them with things pertaining to righteousness."
         <cite>Mosiah 23:18</cite>
       </p>
     </div>
 
-    <div class="search-wrapper">
-      <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-        <circle cx="11" cy="11" r="8"/>
-        <line x1="21" y1="21" x2="16.65" y2="16.65"/>
-      </svg>
-      <input
-        type="search"
-        class="search-input"
-        id="search-input"
-        placeholder="Search your name..."
-        autocomplete="off"
-        autocorrect="off"
-        spellcheck="false"
-      />
-      <ul class="suggestions" id="suggestions" role="listbox"></ul>
-      <p class="error-msg" id="error-msg">Check spelling and try again</p>
+    <!-- Tab Navigation -->
+    <nav class="tab-bar" role="tablist">
+      <button class="tab-btn active" role="tab" aria-selected="true" aria-controls="tab-interviews" data-tab="interviews">Interviews</button>
+      <button class="tab-btn" role="tab" aria-selected="false" aria-controls="tab-service" data-tab="service">Service</button>
+    </nav>
+
+    <!-- Interviews Tab -->
+    <div class="tab-panel active" id="tab-interviews" role="tabpanel">
+      <div class="search-wrapper">
+        <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="11" cy="11" r="8"/>
+          <line x1="21" y1="21" x2="16.65" y2="16.65"/>
+        </svg>
+        <input
+          type="search"
+          class="search-input"
+          id="search-input"
+          placeholder="Search your name..."
+          autocomplete="off"
+          autocorrect="off"
+          spellcheck="false"
+        />
+        <ul class="suggestions" id="suggestions" role="listbox"></ul>
+        <p class="error-msg" id="error-msg">Check spelling and try again</p>
+      </div>
+
+      <div class="spinner" id="interview-spinner" aria-label="Loading"></div>
+
+      <button class="schedule-btn" id="open-popup-button">
+        Schedule Ministering Interview
+      </button>
     </div>
 
-    <div class="spinner" id="spinner" aria-label="Loading"></div>
-
-    <button class="schedule-btn" id="open-popup-button">
-      Schedule Ministering Interview
-    </button>
+    <!-- Service Tab -->
+    <div class="tab-panel" id="tab-service" role="tabpanel">
+      <div class="service-filter">
+        <button class="filter-btn active" data-filter="available">Available</button>
+        <button class="filter-btn" data-filter="all">All</button>
+      </div>
+      <div class="spinner" id="service-spinner" aria-label="Loading"></div>
+      <div class="service-list" id="service-list"></div>
+    </div>
   </main>
 
   <!-- NeetoCal embed loader -->
@@ -351,34 +577,53 @@
   <script async src="https://cdn.neetocal.com/javascript/embed.js"></script>
 
   <script>
-    const CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vSM4nBsrNsbNXMgaLFoBC9oqM34ZAaP2HPAXX9NlDqnRkt3gQJNSp3V_Hg61X5Nua4ORtd_W_h_oXRz/pub?gid=0&single=true&output=csv';
+    // ── Config ──
+    const INTERVIEW_CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vSM4nBsrNsbNXMgaLFoBC9oqM34ZAaP2HPAXX9NlDqnRkt3gQJNSp3V_Hg61X5Nua4ORtd_W_h_oXRz/pub?gid=0&single=true&output=csv';
+    const SERVICE_CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vSRCZUPPNi6alSObBKZezvkq4kXqQMzQUWLuGblG3m3A4QtTAqTIVNx0r6aBco_nbhImIi9a2X8SOzB/pub?gid=0&single=true&output=csv';
     const ORG_SLUG = 'cherry-hill-1st-elders-quorum';
+    const WARD_NAME = '1st Ward';
 
-    let records = [];
+    // ── Tabs ──
+    const tabBtns = document.querySelectorAll('.tab-btn');
+    const tabPanels = document.querySelectorAll('.tab-panel');
+
+    tabBtns.forEach(btn => {
+      btn.addEventListener('click', () => {
+        tabBtns.forEach(b => { b.classList.remove('active'); b.setAttribute('aria-selected', 'false'); });
+        tabPanels.forEach(p => p.classList.remove('active'));
+        btn.classList.add('active');
+        btn.setAttribute('aria-selected', 'true');
+        document.getElementById('tab-' + btn.dataset.tab).classList.add('active');
+      });
+    });
+
+    // ══════════════════════════════════════
+    //  INTERVIEWS TAB
+    // ══════════════════════════════════════
+    let interviewRecords = [];
     let activeIndex = -1;
 
     const input = document.getElementById('search-input');
     const suggestionsEl = document.getElementById('suggestions');
-    const spinner = document.getElementById('spinner');
+    const interviewSpinner = document.getElementById('interview-spinner');
     const openBtn = document.getElementById('open-popup-button');
     const errorMsg = document.getElementById('error-msg');
 
-    // Fetch and parse CSV
-    fetch(CSV_URL)
+    fetch(INTERVIEW_CSV_URL)
       .then(res => res.text())
       .then(csvText => {
         Papa.parse(csvText, {
           header: true,
           skipEmptyLines: true,
           complete: (res) => {
-            records = res.data;
-            spinner.classList.add('hidden');
+            interviewRecords = res.data;
+            interviewSpinner.classList.add('hidden');
           }
         });
       })
       .catch(err => {
-        console.error('Error loading CSV', err);
-        spinner.classList.add('hidden');
+        console.error('Error loading interview CSV', err);
+        interviewSpinner.classList.add('hidden');
         errorMsg.textContent = 'Failed to load data. Please refresh.';
         errorMsg.classList.add('visible');
       });
@@ -426,7 +671,7 @@
     }
 
     function getMatches(query) {
-      return records.filter(r =>
+      return interviewRecords.filter(r =>
         (r['Companion 1'] && r['Companion 1'].toLowerCase().includes(query)) ||
         (r['Companion 2'] && r['Companion 2'].toLowerCase().includes(query))
       );
@@ -435,13 +680,10 @@
     function renderSuggestions(query) {
       clearSuggestions();
       openBtn.classList.remove('visible');
-
-      if (!query || !records.length) return;
-
+      if (!query || !interviewRecords.length) return;
       const matches = getMatches(query);
       if (!matches.length) return;
-
-      matches.slice(0, 5).forEach((r, i) => {
+      matches.slice(0, 5).forEach((r) => {
         const name1 = r['Companion 1'] || '';
         const name2 = r['Companion 2'] || '';
         const displayName = name1.toLowerCase().includes(query) ? name1 : name2;
@@ -455,14 +697,11 @@
 
     input.addEventListener('input', () => {
       hideError();
-      const query = input.value.trim().toLowerCase();
-      renderSuggestions(query);
+      renderSuggestions(input.value.trim().toLowerCase());
     });
 
-    // Keyboard navigation for suggestions
     input.addEventListener('keydown', e => {
       const items = suggestionsEl.querySelectorAll('li');
-
       if (e.key === 'ArrowDown') {
         e.preventDefault();
         activeIndex = Math.min(activeIndex + 1, items.length - 1);
@@ -473,24 +712,15 @@
         updateActive(items);
       } else if (e.key === 'Enter') {
         e.preventDefault();
-        if (activeIndex >= 0 && items[activeIndex]) {
-          items[activeIndex].click();
-          return;
-        }
+        if (activeIndex >= 0 && items[activeIndex]) { items[activeIndex].click(); return; }
         const val = input.value.trim().toLowerCase();
-        const exact = records.find(r =>
+        const exact = interviewRecords.find(r =>
           (r['Companion 1'] && r['Companion 1'].toLowerCase() === val) ||
           (r['Companion 2'] && r['Companion 2'].toLowerCase() === val)
         );
-        if (!exact) {
-          showError('Check spelling and try again');
-        } else {
-          clearSuggestions();
-          loadCalendar(exact['Calendar ID']);
-        }
-      } else if (e.key === 'Escape') {
-        clearSuggestions();
-      }
+        if (!exact) { showError('Check spelling and try again'); }
+        else { clearSuggestions(); loadCalendar(exact['Calendar ID']); }
+      } else if (e.key === 'Escape') { clearSuggestions(); }
     });
 
     function updateActive(items) {
@@ -500,12 +730,123 @@
       });
     }
 
-    // Close suggestions when tapping outside
     document.addEventListener('click', e => {
-      if (!e.target.closest('.search-wrapper')) {
-        clearSuggestions();
-      }
+      if (!e.target.closest('.search-wrapper')) clearSuggestions();
     });
+
+    // ══════════════════════════════════════
+    //  SERVICE OPPORTUNITIES TAB
+    // ══════════════════════════════════════
+    let serviceRecords = [];
+    let serviceFilter = 'available';
+
+    const serviceSpinner = document.getElementById('service-spinner');
+    const serviceList = document.getElementById('service-list');
+    const filterBtns = document.querySelectorAll('.filter-btn');
+
+    filterBtns.forEach(btn => {
+      btn.addEventListener('click', () => {
+        filterBtns.forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        serviceFilter = btn.dataset.filter;
+        renderServiceList();
+      });
+    });
+
+    fetch(SERVICE_CSV_URL)
+      .then(res => res.text())
+      .then(csvText => {
+        Papa.parse(csvText, {
+          header: true,
+          skipEmptyLines: true,
+          complete: (res) => {
+            serviceRecords = res.data;
+            serviceSpinner.classList.add('hidden');
+            renderServiceList();
+          }
+        });
+      })
+      .catch(err => {
+        console.error('Error loading service CSV', err);
+        serviceSpinner.classList.add('hidden');
+        serviceList.innerHTML = '<p class="service-empty">Failed to load opportunities. Please refresh.</p>';
+      });
+
+    function getNeeded(row) {
+      const unit = (row['Unit Assigned'] || '').trim();
+      if (unit.toLowerCase().includes('all ward')) {
+        return parseInt(row['# per ward'], 10) || 0;
+      }
+      return parseInt(row['# of People'], 10) || 0;
+    }
+
+    function getSignedUp(row) {
+      return parseInt(row['# Signed Up'], 10) || 0;
+    }
+
+    function renderServiceList() {
+      serviceList.innerHTML = '';
+
+      let filtered = serviceRecords;
+      if (serviceFilter === 'available') {
+        filtered = serviceRecords.filter(r => {
+          const needed = getNeeded(r);
+          const signedUp = getSignedUp(r);
+          return needed > 0 && signedUp < needed;
+        });
+      }
+
+      if (!filtered.length) {
+        serviceList.innerHTML = serviceFilter === 'available'
+          ? '<p class="service-empty">All opportunities are currently filled. Check back soon!</p>'
+          : '<p class="service-empty">No service opportunities found.</p>';
+        return;
+      }
+
+      filtered.forEach(r => {
+        const needed = getNeeded(r);
+        const signedUp = getSignedUp(r);
+        const spotsLeft = Math.max(needed - signedUp, 0);
+        const isFilled = spotsLeft <= 0;
+
+        const card = document.createElement('div');
+        card.className = 'service-card';
+        if (isFilled) card.style.opacity = '0.55';
+
+        const signupUrl = (r['Sign up'] || '').trim();
+        const signupBtn = signupUrl && !isFilled
+          ? `<a class="signup-link" href="${signupUrl}" target="_blank" rel="noopener noreferrer">Sign Up</a>`
+          : isFilled
+            ? '<span class="spots-badge" style="background:rgba(108,117,125,0.1);color:#6b7c8d;">Filled</span>'
+            : '';
+
+        const spotsClass = spotsLeft <= 2 && spotsLeft > 0 ? 'low' : 'available';
+
+        card.innerHTML = `
+          <div class="service-card-header">${r['Assignment'] || 'Service Opportunity'}</div>
+          <div class="service-card-details">
+            <div class="service-detail">
+              <svg class="service-detail-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+              <span>${r['Location'] || 'TBD'}</span>
+            </div>
+            <div class="service-detail">
+              <svg class="service-detail-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+              <span>${r['Day'] || ''} ${r['Date'] || 'TBD'}</span>
+            </div>
+            <div class="service-detail">
+              <svg class="service-detail-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+              <span>${r['Shift Time'] || 'TBD'}</span>
+            </div>
+          </div>
+          <div class="service-card-footer">
+            ${!isFilled ? `<span class="spots-badge ${spotsClass}">${spotsLeft} spot${spotsLeft !== 1 ? 's' : ''} left</span>` : ''}
+            ${signupBtn}
+          </div>
+        `;
+
+        serviceList.appendChild(card);
+      });
+    }
   </script>
 </body>
 </html>
