@@ -726,7 +726,8 @@
         li.addEventListener('click', () => selectItem(record, name));
         suggestionsEl.appendChild(li);
       });
-      input.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      const y = input.getBoundingClientRect().top + window.scrollY - 24;
+      window.scrollTo({ top: y, behavior: 'smooth' });
     }
 
     input.addEventListener('input', () => {
