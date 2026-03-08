@@ -712,14 +712,18 @@
       if (!query || !interviewRecords.length) return;
       const matches = getMatches(query);
       if (!matches.length) return;
-      matches.slice(0, 5).forEach((r) => {
+      const suggestions = [];
+      matches.forEach((r) => {
         const name1 = r['Companion 1'] || '';
         const name2 = r['Companion 2'] || '';
-        const displayName = name1.toLowerCase().includes(query) ? name1 : name2;
+        if (name1.toLowerCase().includes(query)) suggestions.push({ record: r, name: name1 });
+        if (name2.toLowerCase().includes(query)) suggestions.push({ record: r, name: name2 });
+      });
+      suggestions.slice(0, 5).forEach(({ record, name }) => {
         const li = document.createElement('li');
         li.setAttribute('role', 'option');
-        li.innerHTML = highlightMatch(displayName, query);
-        li.addEventListener('click', () => selectItem(r, displayName));
+        li.innerHTML = highlightMatch(name, query);
+        li.addEventListener('click', () => selectItem(record, name));
         suggestionsEl.appendChild(li);
       });
     }
