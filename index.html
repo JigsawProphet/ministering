@@ -609,12 +609,13 @@
     const openBtn = document.getElementById('open-popup-button');
     const errorMsg = document.getElementById('error-msg');
 
-    fetch(INTERVIEW_CSV_URL)
+    fetch(INTERVIEW_CSV_URL + '&_t=' + Date.now())
       .then(res => res.text())
       .then(csvText => {
         Papa.parse(csvText, {
           header: true,
           skipEmptyLines: true,
+          transformHeader: h => h.trim(),
           complete: (res) => {
             interviewRecords = res.data;
             interviewSpinner.classList.add('hidden');
@@ -753,12 +754,13 @@
       });
     });
 
-    fetch(SERVICE_CSV_URL)
+    fetch(SERVICE_CSV_URL + '&_t=' + Date.now())
       .then(res => res.text())
       .then(csvText => {
         Papa.parse(csvText, {
           header: true,
           skipEmptyLines: true,
+          transformHeader: h => h.trim(),
           complete: (res) => {
             serviceRecords = res.data;
             serviceSpinner.classList.add('hidden');
