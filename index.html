@@ -726,8 +726,11 @@
         li.addEventListener('click', () => selectItem(record, name));
         suggestionsEl.appendChild(li);
       });
-      const y = input.getBoundingClientRect().top + window.scrollY - 24;
-      window.scrollTo({ top: y, behavior: 'smooth' });
+      const listBottom = suggestionsEl.getBoundingClientRect().bottom + window.scrollY + 24;
+      const viewportBottom = window.scrollY + window.innerHeight;
+      if (listBottom > viewportBottom) {
+        window.scrollTo({ top: listBottom - window.innerHeight, behavior: 'smooth' });
+      }
     }
 
     input.addEventListener('input', () => {
