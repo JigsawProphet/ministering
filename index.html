@@ -2,123 +2,368 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="theme-color" content="#146789">
   <title>Ministering Interviews</title>
-  <!-- PapaParse for CSV parsing -->
   <script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
   <style>
-    body {
-      font-family: Arial, sans-serif;
-      margin: 0;
-      padding: 1rem;
-      background: #faf5e9;
-      color: #333;
-    }
-    .search-container {
-      position: relative;
-      max-width: 90%;
-      margin: 2rem auto;
-      text-align: center;
-      border: 1px;
-      border-radius: 25px;
-    }
-    #search-input {
-      width: 100%;
-      max-width: 600px;
-      padding: 0.75rem;
-      font-size: 1rem;
-      border: 2px solid #ccc;
-      border-radius: 0.5rem;
+    *, *::before, *::after {
       box-sizing: border-box;
+      margin: 0;
+      padding: 0;
     }
-    #search-input.error {
-      border-color: #ff6b6b;
+
+    :root {
+      --color-bg: #faf5e9;
+      --color-surface: #ffffff;
+      --color-primary: #146789;
+      --color-primary-hover: #0d4f6a;
+      --color-text: #2c3e50;
+      --color-text-light: #6b7c8d;
+      --color-accent: #a8e6cf;
+      --color-accent-light: #dcedc1;
+      --color-error: #e74c3c;
+      --color-border: #e0ddd5;
+      --radius-sm: 0.5rem;
+      --radius-md: 0.75rem;
+      --radius-lg: 1rem;
+      --radius-xl: 1.5rem;
+      --shadow-sm: 0 1px 3px rgba(0,0,0,0.08);
+      --shadow-md: 0 4px 12px rgba(0,0,0,0.1);
+      --shadow-lg: 0 8px 24px rgba(0,0,0,0.12);
+      --font-sans: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+      --max-width: 600px;
+      --safe-bottom: env(safe-area-inset-bottom, 0px);
     }
-    #suggestions {
+
+    html {
+      -webkit-text-size-adjust: 100%;
+    }
+
+    body {
+      font-family: var(--font-sans);
+      background: var(--color-bg);
+      color: var(--color-text);
+      min-height: 100dvh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 1rem 1rem calc(1rem + var(--safe-bottom));
+      -webkit-font-smoothing: antialiased;
+    }
+
+    .container {
+      width: 100%;
+      max-width: var(--max-width);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 1.5rem;
+      padding-top: 1.5rem;
+    }
+
+    /* Logo */
+    .logo {
+      width: 80%;
+      max-width: 320px;
+      border-radius: var(--radius-xl);
+      display: block;
+    }
+
+    /* Header */
+    .header {
+      text-align: center;
+    }
+
+    .header h1 {
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: var(--color-text);
+      margin-bottom: 0.75rem;
+    }
+
+    .scripture {
+      font-size: 0.875rem;
+      line-height: 1.6;
+      color: var(--color-text-light);
+      font-style: italic;
+      max-width: 28rem;
+    }
+
+    .scripture cite {
+      display: block;
+      margin-top: 0.25rem;
+      font-style: normal;
+      font-weight: 600;
+      color: var(--color-text);
+      font-size: 0.8125rem;
+    }
+
+    /* Search */
+    .search-wrapper {
+      width: 100%;
+      position: relative;
+    }
+
+    .search-input {
+      width: 100%;
+      padding: 0.875rem 1rem 0.875rem 2.75rem;
+      font-size: 1rem;
+      font-family: var(--font-sans);
+      border: 2px solid var(--color-border);
+      border-radius: var(--radius-lg);
+      background: var(--color-surface);
+      color: var(--color-text);
+      outline: none;
+      transition: border-color 0.2s, box-shadow 0.2s;
+      -webkit-appearance: none;
+      appearance: none;
+    }
+
+    .search-input:focus {
+      border-color: var(--color-primary);
+      box-shadow: 0 0 0 3px rgba(20, 103, 137, 0.15);
+    }
+
+    .search-input.error {
+      border-color: var(--color-error);
+      box-shadow: 0 0 0 3px rgba(231, 76, 60, 0.12);
+    }
+
+    .search-input::placeholder {
+      color: var(--color-text-light);
+    }
+
+    .search-icon {
       position: absolute;
-      top: calc(100% + 0.25rem);
+      left: 0.875rem;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 1.25rem;
+      height: 1.25rem;
+      color: var(--color-text-light);
+      pointer-events: none;
+    }
+
+    /* Suggestions dropdown */
+    .suggestions {
+      list-style: none;
+      position: absolute;
+      top: calc(100% + 0.375rem);
       left: 0;
       right: 0;
-      background: #fff;
-      border: 1px solid #ddd;
-      border-radius: 0.5rem;
-      max-height: 200px;
+      background: var(--color-surface);
+      border: 1px solid var(--color-border);
+      border-radius: var(--radius-md);
+      box-shadow: var(--shadow-lg);
+      max-height: 240px;
       overflow-y: auto;
       z-index: 10;
+      -webkit-overflow-scrolling: touch;
     }
-    #suggestions li {
-      list-style: none;
-      padding: 0.5rem;
-      cursor: pointer;
-    }
-    #suggestions li:hover {
-      background: #dcedc1; /* light green on hover */
-    }
-    .highlight {
-      background-color: #a8e6cf; /* green highlight */
-    }
-    #spinner {
-      display: block;
-      margin: 2rem auto;
-      border: 4px solid #f3f3f3;
-      border-top: 4px solid #4caf50;
-      border-radius: 50%;
-      width: 40px;
-      height: 40px;
-      animation: spin 1s linear infinite;
-    }
-    @keyframes spin {
-      0% { transform: rotate(0deg); }
-      100% { transform: rotate(360deg); }
-    }
-    #open-popup-button {
+
+    .suggestions:empty {
       display: none;
-      margin: 2rem auto;
-      padding: 0.75rem 1.25rem;
+    }
+
+    .suggestions li {
+      padding: 0.875rem 1rem;
+      cursor: pointer;
       font-size: 1rem;
+      transition: background 0.15s;
+      border-bottom: 1px solid #f0ede6;
+    }
+
+    .suggestions li:last-child {
+      border-bottom: none;
+    }
+
+    .suggestions li:hover,
+    .suggestions li:active,
+    .suggestions li.active {
+      background: var(--color-accent-light);
+    }
+
+    .highlight {
+      background-color: var(--color-accent);
+      border-radius: 2px;
+      padding: 0 1px;
+    }
+
+    /* Schedule button */
+    .schedule-btn {
+      display: none;
+      width: 100%;
+      padding: 1rem 1.5rem;
+      font-size: 1.0625rem;
+      font-weight: 600;
+      font-family: var(--font-sans);
       border: none;
-      border-radius: 0.5rem;
-      background: #146789;
+      border-radius: var(--radius-lg);
+      background: var(--color-primary);
       color: #fff;
       cursor: pointer;
+      transition: background 0.2s, transform 0.1s;
+      -webkit-tap-highlight-color: transparent;
+      touch-action: manipulation;
+    }
+
+    .schedule-btn:hover {
+      background: var(--color-primary-hover);
+    }
+
+    .schedule-btn:active {
+      transform: scale(0.98);
+    }
+
+    .schedule-btn.visible {
       display: block;
     }
-    #logo {
-      width: 75%;
-      max-width: 600px;
+
+    /* Spinner */
+    .spinner {
+      width: 2.5rem;
+      height: 2.5rem;
+      border: 3px solid var(--color-border);
+      border-top-color: var(--color-primary);
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
       margin: 1rem auto;
-      border-radius: 25px;
     }
-    
+
+    .spinner.hidden {
+      display: none;
+    }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+
+    /* Error toast */
+    .error-msg {
+      font-size: 0.8125rem;
+      color: var(--color-error);
+      margin-top: 0.25rem;
+      padding-left: 0.25rem;
+      display: none;
+    }
+
+    .error-msg.visible {
+      display: block;
+    }
+
+    /* Responsive breakpoints */
+    @media (min-width: 480px) {
+      body {
+        padding: 2rem 1.5rem;
+      }
+
+      .container {
+        gap: 2rem;
+        padding-top: 2rem;
+      }
+
+      .header h1 {
+        font-size: 1.75rem;
+      }
+
+      .scripture {
+        font-size: 0.9375rem;
+      }
+    }
+
+    @media (min-width: 768px) {
+      body {
+        padding: 3rem 2rem;
+      }
+
+      .container {
+        gap: 2.25rem;
+        padding-top: 2.5rem;
+      }
+
+      .logo {
+        max-width: 380px;
+      }
+
+      .header h1 {
+        font-size: 2rem;
+      }
+
+      .search-input {
+        font-size: 1.0625rem;
+        padding: 1rem 1.125rem 1rem 3rem;
+      }
+    }
+
+    @media (min-width: 1024px) {
+      .container {
+        padding-top: 3rem;
+      }
+    }
   </style>
 </head>
 <body>
-   <div class="search-container">
-      <img id="logo" src="https://assets-cdn.neetocal.com//rails/active_storage/blobs/proxy/eyJfcmFpbHMiOnsiZGF0YSI6ImNiNmM5MTVlLWU5NjctNGViNS1iZWE4LWU1ZGEyOGVhMWRlNyIsInB1ciI6ImJsb2JfaWQifX0=--7c709913d60d42535917841474e2ca5398e8419c/Christ-Church-Symbol_JS-GId0t8.png">
-    <h2>Ministering Interviews</h2>
-    <p id="scripture">“Therefore they did watch over their people, and did nourish them with things pertaining to righteousness.”<br>Mosiah 23:18</p>
-    <input type="text" id="search-input" placeholder="Search your name…" autocomplete="off" />
-    <ul id="suggestions"></ul>
-  </div>
+  <main class="container">
+    <img
+      class="logo"
+      src="https://assets-cdn.neetocal.com//rails/active_storage/blobs/proxy/eyJfcmFpbHMiOnsiZGF0YSI6ImNiNmM5MTVlLWU5NjctNGViNS1iZWE4LWU1ZGEyOGVhMWRlNyIsInB1ciI6ImJsb2JfaWQifX0=--7c709913d60d42535917841474e2ca5398e8419c/Christ-Church-Symbol_JS-GId0t8.png"
+      alt="Church Logo"
+    />
 
-  <div id="spinner"></div>
-  <button id="open-popup-button">Schedule Ministering Interview</button>
+    <div class="header">
+      <h1>Ministering Interviews</h1>
+      <p class="scripture">
+        "Therefore they did watch over their people, and did nourish them with things pertaining to righteousness."
+        <cite>Mosiah 23:18</cite>
+      </p>
+    </div>
+
+    <div class="search-wrapper">
+      <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <circle cx="11" cy="11" r="8"/>
+        <line x1="21" y1="21" x2="16.65" y2="16.65"/>
+      </svg>
+      <input
+        type="search"
+        class="search-input"
+        id="search-input"
+        placeholder="Search your name..."
+        autocomplete="off"
+        autocorrect="off"
+        spellcheck="false"
+      />
+      <ul class="suggestions" id="suggestions" role="listbox"></ul>
+      <p class="error-msg" id="error-msg">Check spelling and try again</p>
+    </div>
+
+    <div class="spinner" id="spinner" aria-label="Loading"></div>
+
+    <button class="schedule-btn" id="open-popup-button">
+      Schedule Ministering Interview
+    </button>
+  </main>
 
   <!-- NeetoCal embed loader -->
   <script>window.neetoCal = window.neetoCal || { embed: function(){(neetoCal.q=neetoCal.q||[]).push(arguments)} };</script>
   <script async src="https://cdn.neetocal.com/javascript/embed.js"></script>
 
   <script>
-    const CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vSM4nBsrNsbNXMgaLFoBC9oqM34ZAaP2HPAXX9NlDqnRkt3gQJNSp3V_Hg61X5Nua4ORtd_W_h_oXRz/pub?gid=0&single=true&output=csv'; // replace with your published CSV URL
+    const CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vSM4nBsrNsbNXMgaLFoBC9oqM34ZAaP2HPAXX9NlDqnRkt3gQJNSp3V_Hg61X5Nua4ORtd_W_h_oXRz/pub?gid=0&single=true&output=csv';
     const ORG_SLUG = 'cherry-hill-1st-elders-quorum';
 
     let records = [];
+    let activeIndex = -1;
+
     const input = document.getElementById('search-input');
     const suggestionsEl = document.getElementById('suggestions');
     const spinner = document.getElementById('spinner');
     const openBtn = document.getElementById('open-popup-button');
+    const errorMsg = document.getElementById('error-msg');
 
-    // Fetch and parse the CSV
+    // Fetch and parse CSV
     fetch(CSV_URL)
       .then(res => res.text())
       .then(csvText => {
@@ -127,31 +372,45 @@
           skipEmptyLines: true,
           complete: (res) => {
             records = res.data;
-            spinner.style.display = 'none';
+            spinner.classList.add('hidden');
           }
         });
       })
-      .catch(err => console.error('Error loading CSV', err));
+      .catch(err => {
+        console.error('Error loading CSV', err);
+        spinner.classList.add('hidden');
+        errorMsg.textContent = 'Failed to load data. Please refresh.';
+        errorMsg.classList.add('visible');
+      });
 
-    // Highlight matched text
+    function escapeRegex(str) {
+      return str.replace(/[-/\\^$*+?.()|[\]{}]/g, '\\$&');
+    }
+
     function highlightMatch(text, query) {
-      const regex = new RegExp(`(${query.replace(/[-/\\^$*+?.()|[\]{}]/g, '\\$&')})`, 'gi');
+      const regex = new RegExp(`(${escapeRegex(query)})`, 'gi');
       return text.replace(regex, '<span class="highlight">$1</span>');
     }
 
     function clearSuggestions() {
       suggestionsEl.innerHTML = '';
+      activeIndex = -1;
+    }
+
+    function hideError() {
+      input.classList.remove('error');
+      errorMsg.classList.remove('visible');
     }
 
     function showError(msg) {
       input.classList.add('error');
-      input.value = '';
-      input.placeholder = msg;
+      errorMsg.textContent = msg;
+      errorMsg.classList.add('visible');
       clearSuggestions();
     }
 
     function loadCalendar(calendarId) {
-      openBtn.style.display = 'block';
+      openBtn.classList.add('visible');
       window.neetoCal.embed({
         type: 'elementClick',
         id: calendarId,
@@ -160,48 +419,91 @@
       });
     }
 
-    input.addEventListener('input', () => {
-      input.classList.remove('error');
-      input.placeholder = 'Search your name…';
-      const query = input.value.trim().toLowerCase();
+    function selectItem(record, displayName) {
+      input.value = displayName;
       clearSuggestions();
-      openBtn.style.display = 'none';
+      loadCalendar(record['Calendar ID']);
+    }
 
-      if (!query || !records.length) return;
-      const matches = records.filter(r => 
+    function getMatches(query) {
+      return records.filter(r =>
         (r['Companion 1'] && r['Companion 1'].toLowerCase().includes(query)) ||
         (r['Companion 2'] && r['Companion 2'].toLowerCase().includes(query))
       );
+    }
+
+    function renderSuggestions(query) {
+      clearSuggestions();
+      openBtn.classList.remove('visible');
+
+      if (!query || !records.length) return;
+
+      const matches = getMatches(query);
       if (!matches.length) return;
 
-      matches.slice(0, 5).forEach(r => {
+      matches.slice(0, 5).forEach((r, i) => {
         const name1 = r['Companion 1'] || '';
         const name2 = r['Companion 2'] || '';
         const displayName = name1.toLowerCase().includes(query) ? name1 : name2;
         const li = document.createElement('li');
+        li.setAttribute('role', 'option');
         li.innerHTML = highlightMatch(displayName, query);
-        li.addEventListener('click', () => {
-          input.value = displayName;
-          clearSuggestions();
-          loadCalendar(r['Calendar ID']);
-        });
+        li.addEventListener('click', () => selectItem(r, displayName));
         suggestionsEl.appendChild(li);
       });
+    }
+
+    input.addEventListener('input', () => {
+      hideError();
+      const query = input.value.trim().toLowerCase();
+      renderSuggestions(query);
     });
 
+    // Keyboard navigation for suggestions
     input.addEventListener('keydown', e => {
-      if (e.key === 'Enter') {
+      const items = suggestionsEl.querySelectorAll('li');
+
+      if (e.key === 'ArrowDown') {
         e.preventDefault();
+        activeIndex = Math.min(activeIndex + 1, items.length - 1);
+        updateActive(items);
+      } else if (e.key === 'ArrowUp') {
+        e.preventDefault();
+        activeIndex = Math.max(activeIndex - 1, 0);
+        updateActive(items);
+      } else if (e.key === 'Enter') {
+        e.preventDefault();
+        if (activeIndex >= 0 && items[activeIndex]) {
+          items[activeIndex].click();
+          return;
+        }
         const val = input.value.trim().toLowerCase();
-        const exact = records.find(r => 
+        const exact = records.find(r =>
           (r['Companion 1'] && r['Companion 1'].toLowerCase() === val) ||
           (r['Companion 2'] && r['Companion 2'].toLowerCase() === val)
         );
         if (!exact) {
           showError('Check spelling and try again');
         } else {
+          clearSuggestions();
           loadCalendar(exact['Calendar ID']);
         }
+      } else if (e.key === 'Escape') {
+        clearSuggestions();
+      }
+    });
+
+    function updateActive(items) {
+      items.forEach((li, i) => {
+        li.classList.toggle('active', i === activeIndex);
+        if (i === activeIndex) li.scrollIntoView({ block: 'nearest' });
+      });
+    }
+
+    // Close suggestions when tapping outside
+    document.addEventListener('click', e => {
+      if (!e.target.closest('.search-wrapper')) {
+        clearSuggestions();
       }
     });
   </script>
