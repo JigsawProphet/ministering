@@ -665,14 +665,32 @@
       clearSuggestions();
     }
 
+    let currentCalendarUrl = '';
+
     function loadCalendar(calendarId) {
+      currentCalendarUrl = `https://${ORG_SLUG}.neetocal.com/${calendarId}`;
       openBtn.classList.add('visible');
-      window.neetoCal.embed({
-        type: 'elementClick',
-        id: calendarId,
-        organization: ORG_SLUG,
-        elementSelector: '#open-popup-button'
-      });
+
+      try {
+        window.neetoCal.embed({
+          type: 'elementClick',
+          id: calendarId,
+          organization: ORG_SLUG,
+          elementSelector: '#open-popup-button'
+        });
+      } catch (e) {
+        console.warn('NeetoCal embed failed, using direct link fallback');
+      }
+
+      // Detect iframe refused-to-connect and fall back to direct link
+      openBtn.onclick = function () {
+        setTimeout(() => {
+          const iframe = document.querySelector('iframe[src*="neetocal"]');
+          if (!iframe) {
+            window.open(currentCalendarUrl, '_blank', 'noopener,noreferrer');
+          }
+        }, 1500);
+      };
     }
 
     function selectItem(record, displayName) {
